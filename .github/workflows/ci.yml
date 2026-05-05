@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feat/**", "chore/**", "fix/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pytest
+        # exit code 5 = no tests collected; allow it while test suite is being built
+        run: pytest tests/ -v || [ $? -eq 5 ]
