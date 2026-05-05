@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: stockflow_db
+    restart: unless-stopped
+    env_file:
+      # Lê POSTGRES_USER, POSTGRES_PASSWORD e POSTGRES_DB do arquivo .env
+      - .env
+    ports:
+      # host:container — expõe na porta definida em .env (padrão 5432)
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # Persiste os dados entre reinicializações do container
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
